@@ -1,17 +1,23 @@
 const express = require('express');
 const path = require('path');
 const app = express();
-
-const fridgeRouter = require('./fridgeRouter.js');
+const authenticateToken = require('./controllers/authenticateToken');
+const fridgeRouter = require('./routes/fridgeRouter');
+const userRouter = require('./routes/auth');
+const cors = require('cors');
+const cookieParser = require('cookie-parser');
 
 const PORT = 3000;
 
 // we need something to parse request body
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 //request to router
-app.use('/fridge', fridgeRouter);
+app.use('/user', userRouter);
+app.use('/fridge', authenticateToken, fridgeRouter);
 
 //catch-all route handler for any requests
 
@@ -31,8 +37,8 @@ app.use((err, req, res, next) => {
 
 // start server
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server listening on port: ${PORT}...`);
 });
 
-module.exports = app;
+module.exports = server;
